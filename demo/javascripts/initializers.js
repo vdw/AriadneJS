@@ -1,0 +1,1 @@
+var track = new AriadneJS();
