@@ -39,7 +39,17 @@
 
     }
 
-    setInterval(function() { console.log({cX: document.documentElement.clientWidth, cY: document.documentElement.clientHeight, X: pageX, Y: pageY}) }, this.options.delay);
+    document.onmousedown = handleMouseDown;
+
+    function handleMouseDown(event) {
+      console.log({e: event.toElement, X: event.x, Y: event.y});
+    }
+
+    window.onbeforeunload = handleBeforeUnload;
+
+    var logger = setInterval(function() { console.log({cX: document.documentElement.clientWidth, cY: document.documentElement.clientHeight, X: pageX, Y: pageY}) }, this.options.delay);
+
+    function handleBeforeUnload(event) { clearInterval(logger); }
   }
 
   // Private Methods
@@ -56,5 +66,8 @@
     return source;
 
   }
+
+  log = new AriadneJS();
+  log.init();
 
 }());
