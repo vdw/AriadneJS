@@ -1,9 +1,10 @@
+var AriadnesThread = [];
+
 (function() {
 
   this.AriadneJS = function() {
 
     var defaults = {
-      live:  false,
       delay: 600
     }
 
@@ -11,11 +12,14 @@
 
   }
 
-  // Public Methods
   AriadneJS.prototype.init = function() {
 
-    document.onmousemove = handleMouseMove;
     var eventDoc, doc, body, pageX, pageY;
+    var cX = document.documentElement.clientWidth;
+    var cY = document.documentElement.clientHeight;
+
+    // Mouse move
+    document.onmousemove = handleMouseMove;
 
     function handleMouseMove(event) {
 
@@ -34,25 +38,30 @@
           (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
           (doc && doc.clientTop  || body && body.clientTop  || 0 );
       }
+
       pageX = event.pageX
       pageY = event.pageY
 
     }
 
+    // Mouse click
     document.onmousedown = handleMouseDown;
 
     function handleMouseDown(event) {
-      console.log({e: event.toElement, X: event.x, Y: event.y});
+      AriadnesThread.push(event.toElement + ':' + event.x + ':' + event.y);
+      // _logger( '/api/ariadnes_threads', { thread: AriadnesThread });
     }
 
+    var i = setInterval(function() {
+      AriadnesThread.push(serializer(cX, cY, pageX, pageY));
+    }, this.options.delay);
+
+    // Window status
     window.onbeforeunload = handleBeforeUnload;
 
-    var logger = setInterval(function() { console.log({cX: document.documentElement.clientWidth, cY: document.documentElement.clientHeight, X: pageX, Y: pageY}) }, this.options.delay);
-
-    function handleBeforeUnload(event) { clearInterval(logger); }
+    function handleBeforeUnload(event) { clearInterval(i); }
   }
 
-  // Private Methods
   function extendDefaults(source, properties) {
 
     var property;
@@ -67,7 +76,23 @@
 
   }
 
+  function serializer(cX, cY, X, Y) {
+    return (cX + ':' + cY + ':' + X + ':' + Y);
+  }
+
+  function _logger(url, params) {
+    $.ajax({
+      url: url,
+      type: 'POST',
+      dataType: 'script',
+      data: params,
+      error: function(jqXHR, testStatus, errorThrown) { },
+      success: function(data) { }
+    });
+  }
+
   log = new AriadneJS();
+
   log.init();
 
 }());
