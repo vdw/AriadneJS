@@ -1,4 +1,5 @@
-var AriadnesThread = [];
+var AriadnesThread  = [];
+var AriadnesBrowser = navigator.appVersion;
 
 (function() {
 
@@ -48,8 +49,8 @@ var AriadnesThread = [];
     document.onmousedown = handleMouseDown;
 
     function handleMouseDown(event) {
-      AriadnesThread.push(event.toElement + ':' + event.x + ':' + event.y);
-      // _logger( '/api/ariadnes_threads', { thread: AriadnesThread });
+      AriadnesThread.push(serializer(pageX, pageY));
+      logger( '/api/ariadnes_threads', { browser: AriadnesBrowser, window: serializer(cX, cY), thread: AriadnesThread, event: event.type, element: event.toElement.nodeName });
     }
 
     var i = setInterval(function() {
@@ -63,35 +64,28 @@ var AriadnesThread = [];
     window.onbeforeunload = handleBeforeUnload;
 
     function handleBeforeUnload(event) { clearInterval(i); }
+
   }
 
   function extendDefaults(source, properties) {
-
     var property;
-
     for (property in properties) {
       if (properties.hasOwnProperty(property)) {
         source[property] = properties[property];
       }
     }
-
     return source;
-
   }
 
-  function serializer(cX, cY, X, Y) {
-    return (cX + ':' + cY + ':' + X + ':' + Y);
+  function serializer(X, Y) {
+    return ( X + ':' + Y );
   }
 
-  function _logger(url, params) {
-    $.ajax({
-      url: url,
-      type: 'POST',
-      dataType: 'script',
-      data: params,
-      error: function(jqXHR, testStatus, errorThrown) { },
-      success: function(data) { }
-    });
+  function logger(url, params) {
+    xhr = new XMLHttpRequest();
+    xhr.open('POST', encodeURI(url), true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(params));
   }
 
   log = new AriadneJS();
