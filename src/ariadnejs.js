@@ -53,7 +53,10 @@ var AriadnesThread = [];
     }
 
     var i = setInterval(function() {
-      AriadnesThread.push(serializer(cX, cY, pageX, pageY));
+      track = serializer(cX, cY, pageX, pageY);
+      if ( AriadnesThread[AriadnesThread.length - 1] != track ) {
+        AriadnesThread.push(track);
+      }
     }, this.options.delay);
 
     // Window status
